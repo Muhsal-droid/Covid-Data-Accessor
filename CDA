@@ -1,0 +1,70 @@
+import csv
+from pydoc import doc
+import sys
+# python graphing_icu_cases.py graphing_file.csv IDs.pdf
+import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
+from matplotlib import ticker as ticktools
+
+def make_file():
+  date = input("Please type in the date: (Ex 2020-01-01) \n Date Range is 2021-08-11 to 2022-02-28: ")
+  with open("graphing_file.csv", "r") as f:
+      #csv.reader goes line by line through file 'f'
+      reader = csv.reader(f, delimiter="\t")
+      #writer = csv.writer(open('output.csv', 'w'))
+      for row in reader:
+          #Convert the line into a string then Store in temptext
+          line = row
+          temptext = str(line)
+          temptext = temptext.strip()
+          temptext = temptext[:-2] # remove first two chars
+          temptext = temptext[2:]  # remove last two chars
+          #split temptext into a list of items (using comma as the           delimiter)            and store the items in templist
+          templist = temptext.split(",")
+              #templist is now a list of potential locations
+          if( templist != ''):
+            print(templist)
+            if date in templist[0]:
+              break
+  
+
+
+def graph_file():
+  
+    csv_filename = "graphing_file.csv"
+    graphics_filename = "graph.pdf"
+
+    # Open the data file using "pandas",
+    # readthe entire CSV file
+    try:
+        csv_df = pd.read_csv(csv_filename)
+
+    except IOError as err:
+        print("Unable to open source file", csv_filename,
+                ": {}".format(err), file=sys.stderr)
+        sys.exit(-1)
+    # begin to do the plotting
+    fig = plt.figure()
+
+    plt.title("Rate of ICU Cases Among Vaccinated and Unvaccinated Individuals")
+    # This creates a lineplot using seaborn.  We simply refer to
+    # the various columns of data we want in our pandas data structure.
+    ax1 = sns.lineplot(x = "DATE", y = "% of ICU_CASES", hue = "VACCINE_STATUS", data=csv_df)
+
+
+    ax1.xaxis.set_major_locator(ticktools.MaxNLocator(6))
+
+    plt.xticks(rotation = 45, ha = 'right')
+
+    # Now we can save 
+    # for us to a file
+    fig.savefig(graphics_filename, bbox_inches="tight")
+
+
+    plt.show()
+
+print("Welcome to the covid case database \n Here are the options : \n")
+numb = input("Enter 1 to continue to enter the date or 2 to quit")
+make_file()
+graph_file()
